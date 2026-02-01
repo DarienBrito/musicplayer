@@ -12,11 +12,11 @@ class AudioPlayer:
 
     def __init__(self):
         # Configure VLC for headless operation with ALSA output
-        # Use headphone jack (hw:1,0) on Raspberry Pi
+        # Use headphone jack (hw:0,0) on Raspberry Pi
         self._instance = vlc.Instance(
             "--no-xlib",
             "--aout=alsa",
-            "--alsa-audio-device=plughw:1,0"
+            "--alsa-audio-device=plughw:0,0"
         )
         self._player: vlc.MediaPlayer = self._instance.media_player_new()
         self._playlist: list[str] = []
