@@ -1,0 +1,19 @@
+[Unit]
+Description=Raspberry Pi Music Player Service
+After=network.target sound.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/musicplayer/pi-service
+Environment=PATH=/home/pi/musicplayer/venv/bin:/usr/bin:/bin
+EnvironmentFile=/home/pi/.env
+ExecStart=/home/pi/musicplayer/venv/bin/python main.py
+Restart=always
+RestartSec=5
+
+# Give VLC time to initialize audio
+ExecStartPre=/bin/sleep 2
+
+[Install]
+WantedBy=multi-user.target
