@@ -23,6 +23,7 @@ class AudioPlayer:
         self._playlist: list[str] = []
         self._current_index: int = 0
         self._volume: int = 80
+        self._shuffle_enabled: bool = False
 
         # Set initial volume
         self._player.audio_set_volume(self._volume)
@@ -45,7 +46,14 @@ class AudioPlayer:
         import time
         time.sleep(0.1)  # Small delay to let VLC clean up
         if self._playlist:
-            self._current_index = (self._current_index + 1) % len(self._playlist)
+            next_index = self._current_index + 1
+            # Check if we've reached the end of the playlist
+            if next_index >= len(self._playlist):
+                # Reshuffle if shuffle is enabled before starting over
+                if self._shuffle_enabled:
+                    random.shuffle(self._playlist)
+                next_index = 0
+            self._current_index = next_index
             self._load_and_play(self._playlist[self._current_index])
 
     def scan_directory(self) -> list[str]:
@@ -148,23 +156,28 @@ class AudioPlayer:
         return True
 
     def shuffle(self) -> bool:
-        """Shuffle the playlist order."""
+        """Toggle shuffle mode. When enabled, playlist reshuffles after all tracks play."""
         if not self._playlist:
             return False
 
-        # Remember the currently playing file (if any)
-        current_file = None
-        if 0 <= self._current_index < len(self._playlist):
-            current_file = self._playlist[self._current_index]
+        # Toggle shuffle state
+        self._shuffle_enabled = not self._shuffle_enabled
 
-        # Shuffle the playlist
-        random.shuffle(self._playlist)
+        # When enabling shuffle, shuffle the playlist immediately
+        if self._shuffle_enabled:
+            # Remember the currently playing file (if any)
+            current_file = None
+            if 0 <= self._current_index < len(self._playlist):
+                current_file = self._playlist[self._current_index]
 
-        # Update current_index to point to the same file after shuffle
-        if current_file:
-            self._current_index = self._playlist.index(current_file)
-        else:
-            self._current_index = 0
+            # Shuffle the playlist
+            random.shuffle(self._playlist)
+
+            # Update current_index to point to the same file after shuffle
+            if current_file:
+                self._current_index = self._playlist.index(current_file)
+            else:
+                self._current_index = 0
 
         return True
 
@@ -200,7 +213,8 @@ class AudioPlayer:
             "volume": self._volume,
             "position_ms": max(0, position),
             "duration_ms": max(0, duration),
-            "pi_name": settings.pi_name
+            "pi_name": settings.pi_name,
+            "shuffle_enabled": self._shuffle_enabled
         }
 
 

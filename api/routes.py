@@ -93,9 +93,11 @@ async def rescan():
 
 @router.post("/shuffle")
 async def shuffle():
-    """Shuffle the playlist order."""
+    """Toggle shuffle mode. When enabled, playlist reshuffles after all tracks play."""
     success = player.shuffle()
+    status = player.get_status()
     return {
         "success": success,
-        "message": "Playlist shuffled" if success else "Failed to shuffle (no files)"
+        "shuffle_enabled": status.get("shuffle_enabled", False),
+        "message": f"Shuffle {'enabled' if status.get('shuffle_enabled') else 'disabled'}" if success else "Failed to toggle shuffle (no files)"
     }
