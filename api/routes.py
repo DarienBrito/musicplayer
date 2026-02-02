@@ -89,3 +89,13 @@ async def rescan():
         "success": True,
         "message": f"Found {len(files)} audio files"
     }
+
+
+@router.post("/shuffle")
+async def shuffle():
+    """Shuffle the playlist order."""
+    success = player.shuffle()
+    return {
+        "success": success,
+        "message": "Playlist shuffled" if success else "Failed to shuffle (no files)"
+    }

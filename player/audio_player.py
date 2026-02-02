@@ -1,5 +1,6 @@
 """VLC-based audio player with playlist support."""
 import os
+import random
 from pathlib import Path
 from typing import Optional
 import vlc
@@ -144,6 +145,27 @@ class AudioPlayer:
         """Set volume (0-100)."""
         self._volume = max(0, min(100, volume))
         self._player.audio_set_volume(self._volume)
+        return True
+
+    def shuffle(self) -> bool:
+        """Shuffle the playlist order."""
+        if not self._playlist:
+            return False
+
+        # Remember the currently playing file (if any)
+        current_file = None
+        if 0 <= self._current_index < len(self._playlist):
+            current_file = self._playlist[self._current_index]
+
+        # Shuffle the playlist
+        random.shuffle(self._playlist)
+
+        # Update current_index to point to the same file after shuffle
+        if current_file:
+            self._current_index = self._playlist.index(current_file)
+        else:
+            self._current_index = 0
+
         return True
 
     def get_status(self) -> dict:
